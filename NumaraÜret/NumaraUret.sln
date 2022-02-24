@@ -1,0 +1,250 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.IO;
+
+namespace NumaraUret
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //ComboBox'a veri ekleme
+            comboBox1.Items.Add("Türkcell");
+            comboBox1.Items.Add("Vodafone");
+            comboBox1.Items.Add("TürkTelekom");
+            comboBox1.Items.Add("Bimcell");
+            comboBox1.Items.Add("Hepsi");
+        }
+
+
+        Random rnd = new Random();
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //Excel dosyasına veri ekleme işlevi
+            if (label5.Text=="0")
+            {
+                MessageBox.Show("Boş bırakılmış yerler var veya numara üretilmedi","Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            if (label5.Text!="0")
+            {
+                SaveFileDialog save = new SaveFileDialog();
+                save.OverwritePrompt = false;
+                save.FileName = "Darga - Numaralar";
+                save.DefaultExt = "xlsx";
+                save.Filter = "xlsx Dosyaları (*.xlsx)|*.xlsx|Tüm Dosyalar(*.*)|*.*";
+
+                if (save.ShowDialog() == DialogResult.OK)
+                {
+                    Microsoft.Office.Interop.Excel._Application app = new Microsoft.Office.Interop.Excel.Application();
+                    Microsoft.Office.Interop.Excel._Workbook workbook = app.Workbooks.Add(Type.Missing);
+                    Microsoft.Office.Interop.Excel._Worksheet worksheet = null;
+                    app.Visible = true;
+                    worksheet = workbook.Sheets["Sayfa1"];
+                    worksheet = workbook.ActiveSheet;
+                    worksheet.Name = "Excel Dışa Aktarım";
+                    for (int i = 1; i < dataGridView1.Columns.Count + 1; i++)
+                    {
+                        worksheet.Cells[1, i] = dataGridView1.Columns[i - 1].HeaderText;
+                    }
+                    for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
+                    {
+                        for (int j = 0; j < dataGridView1.Columns.Count; j++)
+                        {
+                            worksheet.Cells[i + 2, j + 1] = dataGridView1.Rows[i].Cells[j].Value.ToString();
+                        }
+                    }
+                    workbook.SaveAs(save.FileName, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                    app.Quit();
+                    MessageBox.Show("Numaralar kaydedildi", "Sistem Bildirim", MessageBoxButtons.OK);
+                }
+            }
+            
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        // GSM Şirketlerin alan kodları
+        string[] turkcell = { "530", "531", "532", "533", "534", "535", "536", "537", "538", "539" };
+        string[] vodafone = { "540", "541", "542", "543", "544", "545", "546", "547", "548", "549" };
+        string[] turktelekom = { "501", "505", "506", "507", "551" };
+        string[] bimcell = { "552", "553", "554", "555", "559" };
+        string[] hepsi = { "552", "553", "554", "555", "559", "501", "505", "506", "507", "551", "540", "541", "542", "543", "544", "545", "546", "547", "548", "549", "530", "531", "532", "533", "534", "535", "536", "537", "538", "539" };
+
+
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Random numara üretme işlevi
+            if (comboBox1.Text == "Sağlayıcı seçin" || textBox2.Text == "")
+            {
+                MessageBox.Show("Boş bırakılmış girdiler var", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            try
+            {
+                dataGridView1.Rows.Clear();
+                dataGridView1.Columns.Clear();
+                if (comboBox1.Text == "Türkcell")
+                {
+                    dataGridView1.Columns.Add("Numara", "Numara");
+
+                    for (int k = 0; k < Convert.ToInt32(textBox2.Text); k++)
+                    {
+                        int dizi = rnd.Next(0, turkcell.Length);
+                        string no = turkcell[dizi];
+                        int sayi = rnd.Next(1000000, 9999999);
+                        string numara = no + sayi;
+                        dataGridView1.Rows.Add("90" + numara);
+                    }
+                    label5.Text = (dataGridView1.Rows.Count-1).ToString();
+                }
+                if (comboBox1.Text == "Vodafone")
+                {
+                    dataGridView1.Columns.Add("Numara", "Numara");
+                    for (int k = 0; k < Convert.ToInt32(textBox2.Text); k++)
+                    {
+                        int dizi = rnd.Next(0, vodafone.Length);
+                        string no = vodafone[dizi];
+                        int sayi = rnd.Next(1000000, 9999999);
+                        dataGridView1.Rows.Add( "90" + no + sayi);
+                    }
+                    label5.Text = (dataGridView1.Rows.Count - 1).ToString();
+                }
+                if (comboBox1.Text == "TürkTelekom")
+                {
+                    dataGridView1.Columns.Add("Numara", "Numara");
+                    for (int k = 0; k < Convert.ToInt32(textBox2.Text); k++)
+                    {
+                        int dizi = rnd.Next(0, turktelekom.Length);
+                        string no = turktelekom[dizi];
+                        int sayi = rnd.Next(1000000, 9999999);
+                        dataGridView1.Rows.Add("90" + no + sayi);
+                    }
+                    label5.Text = (dataGridView1.Rows.Count - 1).ToString();
+                }
+                int aa = 2;
+
+                if (comboBox1.Text == "Bimcell")
+                {
+                    dataGridView1.Columns.Add("Numara", "Numara");
+
+                    for (int k = 0; k < aa; k++)
+                        {
+                        int dizi = rnd.Next(0, bimcell.Length);
+                        string no = bimcell[dizi];
+                        int sayi = rnd.Next(1000000, 9999999);
+                        string numara = "90" + no + sayi;
+                        dataGridView1.Rows.Add("90" + no + sayi);
+                    }
+                    label5.Text = (dataGridView1.Rows.Count - 1).ToString();
+                }
+                if (comboBox1.Text == "Hepsi")
+                {
+                    dataGridView1.Columns.Add("Numara", "Numara");
+                    for (int k = 0; k < Convert.ToInt32(textBox2.Text); k++)
+                    {
+                        int dizi = rnd.Next(0, hepsi.Length);
+                        string no = hepsi[dizi];
+                        int sayi = rnd.Next(1000000, 9999999);
+                        dataGridView1.Rows.Add("90" + no + sayi);
+                    }
+                    label5.Text = (dataGridView1.Rows.Count - 1).ToString();
+                }
+            }
+            catch 
+            {
+
+                MessageBox.Show("Hata", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //txt olarak dışarı aktarma
+            if (label5.Text == "0")
+            {
+                MessageBox.Show("Boş bırakılmış yerler var veya numara üretilmedi","Hata" ,MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            if (label5.Text != "0")
+            {
+
+                saveFileDialog1.Filter = "Metin dosyası|*.txt";
+                saveFileDialog1.FileName = "Darga - Numaralar";
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate, FileAccess.Write);
+                    fs.Close();
+                    for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
+                    {
+                        File.AppendAllText(saveFileDialog1.FileName, "BEGIN:VCARD");
+                        string numara = dataGridView1.Rows[i].Cells["Numara"].Value.ToString();
+                        File.AppendAllText(saveFileDialog1.FileName, numara + "\n");
+                    }
+
+                    MessageBox.Show("Numaralar kaydedildi", "Sistem Bildirim", MessageBoxButtons.OK);
+                }
+                dataGridView1.Rows.Clear();
+                dataGridView1.Columns.Clear();
+            }
+
+        }
+
+        bool tutus;
+        int FareX, FareY;
+
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+
+            if (tutus == true)
+            {
+
+                this.Left = Cursor.Position.X - FareX;
+                this.Top = Cursor.Position.Y - FareY;
+            }
+
+        }
+
+        private void Form1_MouseUp(object sender, MouseEventArgs e)
+        {
+            tutus = false;
+            FareX = 0;
+            FareY = 0;
+
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            tutus = true;
+            FareX = Cursor.Position.X - this.Left;
+            FareY = Cursor.Position.Y - this.Top;
+
+        }
+    }
+}
